@@ -2,6 +2,7 @@ package no.hackerspacentnu.deadline
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.DatePicker
@@ -14,12 +15,25 @@ import java.util.concurrent.TimeUnit
 @Suppress("DEPRECATION") // Don't complain about Date
 class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     val deadline = Date() // Please don't use `Date` in real apps.
+    // Lazy load to prevent using `applicationContext` before `onCreate`
+    val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(applicationContext) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Load the deadline from file
+        deadline.time = prefs.getLong("deadline", System.currentTimeMillis())
+
         // hoursLeftTextView.text = "X hours left" // Now we update the text!
+    }
+
+    /*
+     * This code is run whenever the app is about to become visible on the screen somehow
+     */
+    override fun onStart() {
+        super.onStart() // DO NOT DELETE THIS LINE
+        updateUI() // Ensure UI is up-to-date
     }
 
     /*
@@ -52,6 +66,11 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
         // Ensure number of hours left is updated
         updateUI()
+
+        // Create an update transaction, and apply the changes.
+        prefs.edit()
+                .putLong("deadline", deadline.time)
+                .apply()
     }
 
     fun updateUI() {
