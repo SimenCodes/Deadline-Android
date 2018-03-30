@@ -1,7 +1,9 @@
 package no.hackerspace_ntnu.deadline;
 
 import android.app.DatePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.DatePicker;
@@ -16,6 +18,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     Date deadline = new Date(); // Please don't use `Date` in real apps.
 
+    // SharedPreferences lets us store small pieces of information on the device.
+    // We will use it to store the deadline
+    SharedPreferences prefs;
+
     TextView hoursLeftTextView; // Lets us “do stuff” with the text view.
 
     @Override
@@ -23,9 +29,25 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Load preferences from disk.
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        // Read stored deadline
+        long deadlineMillis = prefs.getLong("deadline", System.currentTimeMillis());
+        deadline.setTime(deadlineMillis);
+
         // Look up the text view using the ID we set in `activity_main.xml`
         hoursLeftTextView = findViewById(R.id.hoursLeftTextView);
         // hoursLeftTextView.setText("X hours left"); // Now we update the text!
+    }
+
+    /**
+     * This code is run whenever the app is about to become visible on the screen somehow
+     */
+    @Override
+    protected void onStart() {
+        super.onStart(); // DO NOT DELETE THIS LINE!
+        updateUI(); // Ensure UI is up-to-date
     }
 
     /*
@@ -59,6 +81,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         // Ensure number of hours left is updated
         updateUI();
+
+        // Create an update transaction, and apply the changes.
+        prefs.edit()
+                .putLong("deadline", deadline.getTime())
+                .apply();
     }
 
     void updateUI() {
