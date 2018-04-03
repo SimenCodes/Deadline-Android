@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     SharedPreferences prefs;
 
     TextView hoursLeftTextView; // Lets us “do stuff” with the text view.
+    ImageView reaperImageView; // Used to animate the grim reaper
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +38,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         long deadlineMillis = prefs.getLong("deadline", System.currentTimeMillis());
         deadline.setTime(deadlineMillis);
 
-        // Look up the text view using the ID we set in `activity_main.xml`
+        // Look up the views using the IDs we set in `activity_main.xml`
         hoursLeftTextView = findViewById(R.id.hoursLeftTextView);
-        // hoursLeftTextView.setText("X hours left"); // Now we update the text!
+        reaperImageView = findViewById(R.id.reaperImageView);
+
+        reaperImageView.setTranslationX(-1000); // Throw the reaper offscreen
     }
 
     /**
@@ -102,5 +106,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Set the Activity title
         String formattedDeadline = SimpleDateFormat.getDateInstance().format(deadline);
         setTitle("Deadline: " + formattedDeadline);
+
+        // Animate the reaper walking towards the computer guy
+        reaperImageView.animate().translationX(-10 * hoursLeft).setDuration(3000);
     }
 }
