@@ -25,7 +25,8 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         // Load the deadline from file
         deadline.time = prefs.getLong("deadline", System.currentTimeMillis())
 
-        // hoursLeftTextView.text = "X hours left" // Now we update the text!
+        // Move the grim reaper offscreen before the app is displayed
+        reaperImageView.translationX = -1000f
     }
 
     /*
@@ -85,5 +86,8 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         // Set the Activity title
         val formattedDeadline = SimpleDateFormat.getDateInstance().format(deadline)
         title = "Deadline: $formattedDeadline"
+
+        // Animate the grim reaper walking towards the computer guy
+        reaperImageView.animate().translationX(-10f * hoursLeft).duration = 3000
     }
 }
