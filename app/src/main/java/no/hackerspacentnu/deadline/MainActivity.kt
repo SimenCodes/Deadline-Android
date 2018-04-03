@@ -1,9 +1,12 @@
 package no.hackerspacentnu.deadline
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.DatePicker
 import kotlinx.android.synthetic.main.activity_main.*
@@ -15,6 +18,17 @@ import java.util.concurrent.TimeUnit
 @Suppress("DEPRECATION") // Don't complain about Date
 class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     val deadline = Date() // Please don't use `Date` in real apps.
+
+/*
+    // Alternative "property-style" approach
+    val hoursLeft: Long
+        get() {
+            val now = Date()
+            val diff = deadline.time - now.time // Number of milliseconds from now until the deadline
+            return TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS) // Convert ms to hours
+        }
+*/
+
     // Lazy load to prevent using `applicationContext` before `onCreate`
     val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(applicationContext) }
 
@@ -75,10 +89,7 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
     }
 
     fun updateUI() {
-        val now = Date()
-        val diff = deadline.time - now.time // Number of milliseconds from now until the deadline
-
-        val hoursLeft = TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS) // Convert ms to hours
+        val hoursLeft = getHoursLeft()
 
         // Update the displayed text
         hoursLeftTextView.text = "$hoursLeft hours left"
@@ -90,4 +101,33 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         // Animate the grim reaper walking towards the computer guy
         reaperImageView.animate().translationX(-10f * hoursLeft).duration = 3000
     }
+
+    private fun getHoursLeft(): Long {
+        val now = Date()
+        val diff = deadline.time - now.time // Number of milliseconds from now until the deadline
+
+        return TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS) // Convert ms to hours
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    fun onShareButtonClicked(menuItem: MenuItem) {
+        val hoursLeft = getHoursLeft()
+        val text = "I have a deadline in just $hoursLeft hours. Help me procrastinate!"
+
+        // We intend to send something
+        val intent = Intent(Intent.ACTION_SEND)
+        // Here's what we are trying to send
+        intent.putExtra(Intent.EXTRA_TEXT, text)
+        // Just plain old boring text.
+        intent.type = "text/plain"
+        // Creates the panel that lets us choose app to share via
+        val chooserIntent = Intent.createChooser(intent, "Share your deadline using…")
+        // Display the sharing panel
+        startActivity(chooserIntent)
+    }
+
 }
