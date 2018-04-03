@@ -1,10 +1,13 @@
 package no.hackerspace_ntnu.deadline;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageView;
@@ -93,12 +96,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     void updateUI() {
-        Date now = new Date();
-        long deadlineMillis = deadline.getTime();
-        long nowMillis = now.getTime();
-        long diff = deadlineMillis - nowMillis; // Number of milliseconds from now until the deadline
-
-        long hoursLeft = TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS); // Convert ms to hours
+        long hoursLeft = getHoursLeft();
 
         // Update the displayed text
         hoursLeftTextView.setText(hoursLeft + " hours left");
@@ -109,5 +107,42 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         // Animate the reaper walking towards the computer guy
         reaperImageView.animate().translationX(-10 * hoursLeft).setDuration(3000);
+    }
+
+    private long getHoursLeft() {
+        Date now = new Date();
+        long deadlineMillis = deadline.getTime();
+        long nowMillis = now.getTime();
+        long diff = deadlineMillis - nowMillis; // Number of milliseconds from now until the deadline
+
+        return TimeUnit.HOURS.convert(diff, TimeUnit.MILLISECONDS);
+    }
+
+    /*
+     * This code is run when Android creates the app bar.
+     * Due to historical reasons, it's called an options menu and is not initialized in onCreate
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    /*
+     * This code is run when the share button in the app bar is clicked
+     */
+    public void onShareButtonClicked(MenuItem menuItem) {
+        String textToSend = "I have a deadline in just " + getHoursLeft() + " hours. Help me procrastinate";
+
+        // We intend to send something
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        // Here's what we are trying to send
+        intent.putExtra(Intent.EXTRA_TEXT, textToSend);
+        // Just plain old boring text.
+        intent.setType("text/plain");
+        // Creates the panel that lets us choose app to share via
+        Intent chooserIntent = Intent.createChooser(intent, "Share your deadline using…");
+        // Display the sharing panel
+        startActivity(chooserIntent);
     }
 }
