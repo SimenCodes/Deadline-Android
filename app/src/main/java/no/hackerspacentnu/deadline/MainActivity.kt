@@ -92,11 +92,11 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         val hoursLeft = getHoursLeft()
 
         // Update the displayed text
-        hoursLeftTextView.text = "$hoursLeft hours left"
+        hoursLeftTextView.text = getString(R.string.hours_left, hoursLeft)
 
         // Set the Activity title
         val formattedDeadline = SimpleDateFormat.getDateInstance().format(deadline)
-        title = "Deadline: $formattedDeadline"
+        title = "${getString(R.string.app_name)}: $formattedDeadline"
 
         // Animate the grim reaper walking towards the computer guy
         reaperImageView.animate().translationX(-10f * hoursLeft).duration = 3000
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
 
     fun onShareButtonClicked(menuItem: MenuItem) {
         val hoursLeft = getHoursLeft()
-        val text = "I have a deadline in just $hoursLeft hours. Help me procrastinate!"
+        val text = getString(R.string.share_text, hoursLeft)
 
         // We intend to send something
         val intent = Intent(Intent.ACTION_SEND)
@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener {
         // Just plain old boring text.
         intent.type = "text/plain"
         // Creates the panel that lets us choose app to share via
-        val chooserIntent = Intent.createChooser(intent, "Share your deadline using…")
+        val chooserIntent = Intent.createChooser(intent, getString(R.string.title_share_chooser))
         // Display the sharing panel
         startActivity(chooserIntent)
     }
