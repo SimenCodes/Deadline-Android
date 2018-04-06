@@ -2,6 +2,7 @@
     <string name="app_name">Deadline</string>
     <string name="action_change_deadline">Change deadline</string>
     <string name="hours_left">%d hours left</string>
+    <string name="hours_left_list_item">%s: %d hours left</string>
     <string name="title_share_chooser">Share your deadline using…</string>
     <string name="share_text">I have a deadline in just %d hours. Help me procrastinate!</string>
 </resources>
